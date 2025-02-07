@@ -10,6 +10,8 @@ from foxglove_websocket.types import (
     ServiceId,
 )
 
+with open('foxglove_server/example_msg.json', 'r') as file:
+    data = file.read()
 
 async def main():
     class Listener(FoxgloveServerListener):
@@ -72,15 +74,7 @@ async def main():
                 "topic": "example_msg",
                 "encoding": "json",
                 "schemaName": "ExampleMsg",
-                "schema": json.dumps(
-                    {
-                        "type": "object",
-                        "properties": {
-                            "msg": {"type": "string"},
-                            "count": {"type": "number"},
-                        },
-                    }
-                ),
+                "schema": data,
                 "schemaEncoding": "jsonschema",
             }
         )
