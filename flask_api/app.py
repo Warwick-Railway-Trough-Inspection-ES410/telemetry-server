@@ -9,6 +9,7 @@ socketio = SocketIO(app, cors_allowed_origins='*') #Change for production!
 @socketio.on('data_receive')
 def handle_json(json):
     print('Received json: ' + str(json))
+    incoming_data = json
 
 @socketio.on('connect')
 def test_connect(message):
