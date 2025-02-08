@@ -10,8 +10,15 @@ from foxglove_websocket.types import (
     ServiceId,
 )
 
-with open('foxglove_server/example_msg.json', 'r') as file:
-    data = file.read()
+# Load any JSON schemas we will use
+with open('foxglove_server/jsonschema/GeoJSON.json', 'r') as file:
+    GeoJSON_schema = file.read()
+with open('foxglove_server/jsonschema/LocationFix.json', 'r') as file:
+    LocationFix_schema = file.read()
+with open('foxglove_server/jsonschema/CompressedImage.json', 'r') as file:
+    CompressedImage_schema = file.read()
+with open('foxglove_server/jsonschema/Log.json', 'r') as file:
+    Log_schema = file.read()
 
 async def main():
     class Listener(FoxgloveServerListener):
@@ -69,12 +76,48 @@ async def main():
         supported_encodings=["json"],
     ) as server:
         server.set_listener(Listener())
-        chan_id = await server.add_channel(
+        geo_chan = await server.add_channel(
             {
-                "topic": "example_msg",
+                "topic": "MapAnnotation",
                 "encoding": "json",
-                "schemaName": "ExampleMsg",
-                "schema": data,
+                "schemaName": "foxglove.GeoJSON",
+                "schema": GeoJSON_schema,
+                "schemaEncoding": "jsonschema",
+            }
+        )
+        location_chan = await server.add_channel(
+            {
+                "topic": "GPS",
+                "encoding": "json",
+                "schemaName": "foxglove.LocationFix",
+                "schema": LocationFix_schema,
+                "schemaEncoding": "jsonschema",
+            }
+        )
+        cam1_chan = await server.add_channel(
+            {
+                "topic": "Camera1",
+                "encoding": "json",
+                "schemaName": "foxglove.CompressedImage",
+                "schema": CompressedImage_schema,
+                "schemaEncoding": "jsonschema",
+            }
+        )
+        cam2_chan = await server.add_channel(
+            {
+                "topic": "Camera2",
+                "encoding": "json",
+                "schemaName": "foxglove.CompressedImage",
+                "schema": CompressedImage_schema,
+                "schemaEncoding": "jsonschema",
+            }
+        )
+        log_chan = await server.add_channel(
+            {
+                "topic": "Log Message",
+                "encoding": "json",
+                "schemaName": "foxglove.Log",
+                "schema": Log_schema,
                 "schemaEncoding": "jsonschema",
             }
         )
@@ -117,11 +160,21 @@ async def main():
         i = 0
         while True:
             i += 1
-            await asyncio.sleep(0.2)
+            await asyncio.sleep(0.1)
             await server.send_message(
-                chan_id,
+                log_chan,
                 time.time_ns(),
-                json.dumps({"msg": "Hello!", "count": i}).encode("utf8"),
+                json.dumps({
+                    "timestamp": {
+                        "sec": 10000,
+                        "nsec": 1000
+                    },
+                    "level": 0,
+                    "message": "hello world",
+                    "name": "idk",
+                    "file": "test",
+                    "line": 0
+                }).encode("utf8"),
             )
 
 
