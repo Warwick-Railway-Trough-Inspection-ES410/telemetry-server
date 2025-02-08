@@ -1,0 +1,1 @@
+foxglove_websocket==0.1.2
