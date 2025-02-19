@@ -160,7 +160,7 @@ async def main():
         i = 0
         while True:
             i += 1
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.5)
             await server.send_message(
                 log_chan,
                 time.time_ns(),

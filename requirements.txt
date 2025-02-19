@@ -1,1 +1,2 @@
 foxglove_websocket==0.1.2
+flask==3.1.0

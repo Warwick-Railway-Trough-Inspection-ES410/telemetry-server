@@ -12,7 +12,7 @@ def connected():
 def disconnected():
     print("Client Disconnected")
 
-sio.connect('http://localhost:5000', transports=['websocket'])
+sio.connect('http://localhost:3000', transports=['websocket'])
 
 #sio.emit("data_receive", {"message": "testing ..."})
 sio.emit("data_receive", {

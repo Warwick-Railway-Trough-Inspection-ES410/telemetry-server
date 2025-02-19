@@ -40,4 +40,4 @@ def formatted_data ():
     return jsonify(formatted_data)
 
 if __name__ == '__main__':
-    socketio.run(app, port=5000, debug=True)
+    socketio.run(app, port=3000, debug=True)
