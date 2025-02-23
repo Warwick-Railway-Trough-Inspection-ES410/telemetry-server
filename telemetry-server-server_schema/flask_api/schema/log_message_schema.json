@@ -1,0 +1,22 @@
+{
+    "type": "object",
+    "properties": {
+        "level": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5
+        },
+        "message": {
+            "type": "string"
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time"
+        }
+    },
+    "required": [
+        "level",
+        "message",
+        "timestamp"
+    ]
+}

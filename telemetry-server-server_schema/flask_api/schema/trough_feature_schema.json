@@ -1,0 +1,31 @@
+{
+    "type": "object",
+    "properties": {
+        "feature_type": {
+            "type": "integer"
+        },
+        "gps": {
+            "type": "object",
+            "properties": {
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "altitude": {
+                    "type": "number"
+                }
+            }
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time"
+        }
+    },
+    "required": [
+        "feature_type",
+        "gps",
+        "timestamp"
+    ]
+}

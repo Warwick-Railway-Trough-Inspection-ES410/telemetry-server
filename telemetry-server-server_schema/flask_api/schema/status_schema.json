@@ -1,0 +1,65 @@
+{
+    "type": "object",
+    "properties": {
+        "status": {
+            "type": "integer"
+        },
+        "battery": {
+            "type": "integer"
+        },
+        "distance_travelled": {
+            "type": "number"
+        },
+        "signal_quality": {
+            "type": "number"
+        },
+        "gps": {
+            "type": "object",
+            "properties": {
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "altitude": {
+                    "type": "number"
+                }
+            }
+        },
+        "imu": {
+            "type": "object",
+            "properties": {
+                "acceleration": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                },
+                "orientation": {
+                    "type": "number",
+                    "items": {
+                        "type": "number"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                }
+            }
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time"
+        }
+    },
+    "required": [
+        "status",
+        "battery",
+        "distance_travelled",
+        "signal_quality",
+        "gps",
+        "imu",
+        "timestamp"
+    ]
+}
