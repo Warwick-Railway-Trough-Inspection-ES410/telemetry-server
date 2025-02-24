@@ -19,11 +19,11 @@ with open("flask_api/schema/log_message_schema.json", 'r') as file:
 # Define Endpoints
 @socketio.on("status")
 def status_endpoint(data):
-    return validate_request(data, status_schema)
+    return validate_request(data, status_schema, "status")
 
 @socketio.on("log")
 def log_endpoint(data):
-    return validate_request(data, log_message_schema)
+    return validate_request(data, log_message_schema, "log")
 
 @socketio.on('connect')
 def test_connect(message):
@@ -34,17 +34,21 @@ def test_connect(message):
 def test_disconnect(reason):
     print('Client disconnected, reason:', reason)
 
-def validate_request(data, schema):
+def validate_request(data, schema, schema_name):
     global q, l
     try:
         validate(instance=data, schema=schema)
-        l.call_soon_threadsafe(message_queue.put_nowait, "hi")
+        l.call_soon_threadsafe(q.put_nowait, (
+            schema_name,
+            data
+        ))
         return {"message": "Valid request"}, 200
     except ValidationError as e:
         return {"error": "Invalid request", "details": e.message}, 400
     except Exception as e:
         return {"error": "Something went wrong", "details": str(e)}, 500
 
+# Called externally to start Flask
 def run(message_queue, loop):
     global q, l
     q = message_queue

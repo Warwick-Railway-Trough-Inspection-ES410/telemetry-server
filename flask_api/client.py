@@ -1,5 +1,5 @@
 import socketio
-import time
+from datetime import datetime, timezone
 import json
 
 sio = socketio.Client()
@@ -18,10 +18,13 @@ def disconnected():
 
 sio.connect('http://localhost:3000', transports=['websocket'])
 
+# Get current time in ISO 8601 format
+iso_time = datetime.now(timezone.utc).isoformat() + "Z"
+
 data =  {
     "level": 1,
     "message": "Test message...",
-    "timestamp": "2025-02-24T09:00:00.123Z"
+    "timestamp": iso_time
 }
 send_data("log", data)
 
