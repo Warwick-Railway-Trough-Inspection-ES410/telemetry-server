@@ -39,5 +39,9 @@ def validate_request(data, schema):
     except Exception as e:
         return {"error": "Something went wrong", "details": str(e)}, 500
 
+def run():
+    print("Starting Flask Thread")
+    socketio.run(app, port=3000, use_reloader=False, debug=False)
+
 if __name__ == '__main__':
-    socketio.run(app, port=3000, debug=True)
+    run()

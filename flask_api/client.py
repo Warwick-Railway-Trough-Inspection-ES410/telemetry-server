@@ -25,4 +25,4 @@ data =  {
 }
 send_data("log", data)
 
-sio.wait()
+sio.disconnect()

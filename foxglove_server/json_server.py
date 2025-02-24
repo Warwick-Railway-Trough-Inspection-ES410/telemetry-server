@@ -177,6 +177,8 @@ async def main():
                 }).encode("utf8"),
             )
 
-
-if __name__ == "__main__":
+def run():
     run_cancellable(main())
+    
+if __name__ == "__main__":
+    run()
