@@ -1,6 +1,7 @@
 import asyncio
 import json
 import time
+
 from foxglove_websocket import run_cancellable
 from foxglove_websocket.server import FoxgloveServer, FoxgloveServerListener
 from foxglove_websocket.types import (
@@ -20,7 +21,8 @@ with open('foxglove_server/jsonschema/CompressedImage.json', 'r') as file:
 with open('foxglove_server/jsonschema/Log.json', 'r') as file:
     Log_schema = file.read()
 
-async def main():
+async def main(message_queue, loop):
+
     class Listener(FoxgloveServerListener):
         async def on_subscribe(self, server: FoxgloveServer, channel_id: ChannelId):
             print("First client subscribed to", channel_id)
@@ -159,27 +161,29 @@ async def main():
 
         i = 0
         while True:
-            i += 1
-            await asyncio.sleep(0.5)
-            await server.send_message(
-                log_chan,
-                time.time_ns(),
-                json.dumps({
-                    "timestamp": {
-                        "sec": 10000,
-                        "nsec": 1000
-                    },
-                    "level": 0,
-                    "message": "hello world",
-                    "name": "idk",
-                    "file": "test",
-                    "line": 0
-                }).encode("utf8"),
-            )
+            message = await message_queue.get()
+            print(f"Sending message to Foxglove: {message}")
+            # i += 1
+            # await asyncio.sleep(0.5)
+            # await server.send_message(
+            #     log_chan,
+            #     time.time_ns(),
+            #     json.dumps({
+            #         "timestamp": {
+            #             "sec": 10000,
+            #             "nsec": 1000
+            #         },
+            #         "level": 0,
+            #         "message": "hello world",
+            #         "name": "idk",
+            #         "file": "test",
+            #         "line": 0
+            #     }).encode("utf8"),
+            # )
 
-def run():
+async def run(message_queue, loop):
     print("Starting Foxglove thread")
-    run_cancellable(main())
+    await main(message_queue, loop)
     
 if __name__ == "__main__":
     run()

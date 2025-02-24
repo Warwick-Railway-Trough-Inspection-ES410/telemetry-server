@@ -17,16 +17,21 @@ Missing Features (ToDo):
 ------------------------
 
 """
-import threading
 import flask_api.app as flask_server
 import foxglove_server.json_server as foxglove_server
+import asyncio
+import threading
 
-def main_runner():
-    flask_thread = threading.Thread(target=flask_server.run, daemon=True)
+
+async def main_runner():
+    message_queue = asyncio.Queue()
+    loop = asyncio.get_running_loop()
+
+    flask_thread = threading.Thread(target=flask_server.run, args=(message_queue, loop), daemon=True)
     flask_thread.start()
-    
-    foxglove_server.run()
+
+    await foxglove_server.run(message_queue, loop)
 
 
 if __name__ == '__main__':
-    main_runner()  # Start both servers
+    asyncio.run(main_runner()) # Start both servers

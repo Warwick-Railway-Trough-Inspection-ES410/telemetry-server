@@ -2,9 +2,13 @@ from flask import Flask
 from flask_socketio import SocketIO, emit
 import json
 from jsonschema import validate, ValidationError
+import asyncio
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins='*') #Change for production!
+
+q = None
+l = None
 
 # Load schemas from files
 with open("flask_api/schema/status_schema.json", 'r') as file:
@@ -31,17 +35,22 @@ def test_disconnect(reason):
     print('Client disconnected, reason:', reason)
 
 def validate_request(data, schema):
+    global q, l
     try:
         validate(instance=data, schema=schema)
+        l.call_soon_threadsafe(message_queue.put_nowait, "hi")
         return {"message": "Valid request"}, 200
     except ValidationError as e:
         return {"error": "Invalid request", "details": e.message}, 400
     except Exception as e:
         return {"error": "Something went wrong", "details": str(e)}, 500
 
-def run():
-    print("Starting Flask thread")
+def run(message_queue, loop):
+    global q, l
+    q = message_queue
+    l = loop
+    print("Starting Flask thread\n")
     socketio.run(app, host='0.0.0.0', port=3000, debug=False, use_reloader=False)
 
 if __name__ == '__main__':
-    run()
+    run(None)
