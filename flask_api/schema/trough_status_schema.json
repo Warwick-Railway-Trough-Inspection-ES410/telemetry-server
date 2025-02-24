@@ -1,0 +1,38 @@
+{
+    "type": "object",
+    "properties": {
+        "num_cables": {
+            "type": "integer"
+        },
+        "capacity": {
+            "type": "number"
+        },
+        "illumination": {
+            "type": "number"
+        },
+        "gps": {
+            "type": "object",
+            "properties": {
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "altitude": {
+                    "type": "number"
+                }
+            }
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time"
+        }
+    },
+    "required": [
+        "num_cables",
+        "capacity",
+        "gps",
+        "timestamp"
+    ]
+}

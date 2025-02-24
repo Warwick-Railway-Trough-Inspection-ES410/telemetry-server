@@ -1,32 +1,31 @@
 import socketio
-import time
+from datetime import datetime, timezone
 import json
 
 sio = socketio.Client()
 
+def send_data(endpoint, data):
+    response = sio.call(endpoint, data)
+    print(f"Response from {endpoint}: {response}")
+
 @sio.on('connect')
 def connected():
-    print("Trough Inspection Robot Connected")
+    print("Connected to server")
 
 @sio.on('disconnect')
 def disconnected():
-    print("Client Disconnected")
+    print("Disconnected from server")
 
-sio.connect('http://localhost:5000', transports=['websocket'])
+sio.connect('http://localhost:3000', transports=['websocket'])
 
-#sio.emit("data_receive", {"message": "testing ..."})
-sio.emit("data_receive", {
-        'position': ["1.0000", "1.0000", "1.0000"],
-        'status': 1,
-        'battery': 100,
-        'dist_trav': 10,
-        #Signal quality - if required
-        'IMU': ["1.0000", "1.0000", "1.0000"],
-        'trough':
-            {
-            'nCables': 5.0000,
-            'areaCables': 80.0000,
-            },
-        'image': "ABC+=/akla+-" #Base 64 Image 
-    })
-sio.wait()
+# Get current time in ISO 8601 format
+iso_time = datetime.now(timezone.utc).isoformat() + "Z"
+
+data =  {
+    "level": 1,
+    "message": "Test message...",
+    "timestamp": iso_time
+}
+send_data("log", data)
+
+sio.disconnect()

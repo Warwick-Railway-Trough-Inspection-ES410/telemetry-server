@@ -1,6 +1,9 @@
 import asyncio
 import json
 import time
+from datetime import datetime
+import time
+
 from foxglove_websocket import run_cancellable
 from foxglove_websocket.server import FoxgloveServer, FoxgloveServerListener
 from foxglove_websocket.types import (
@@ -20,7 +23,8 @@ with open('foxglove_server/jsonschema/CompressedImage.json', 'r') as file:
 with open('foxglove_server/jsonschema/Log.json', 'r') as file:
     Log_schema = file.read()
 
-async def main():
+async def main(message_queue, loop):
+
     class Listener(FoxgloveServerListener):
         async def on_subscribe(self, server: FoxgloveServer, channel_id: ChannelId):
             print("First client subscribed to", channel_id)
@@ -157,26 +161,44 @@ async def main():
             }
         )
 
-        i = 0
         while True:
-            i += 1
-            await asyncio.sleep(0.1)
-            await server.send_message(
-                log_chan,
-                time.time_ns(),
-                json.dumps({
-                    "timestamp": {
-                        "sec": 10000,
-                        "nsec": 1000
-                    },
-                    "level": 0,
-                    "message": "hello world",
-                    "name": "idk",
-                    "file": "test",
-                    "line": 0
-                }).encode("utf8"),
-            )
+            message = await message_queue.get()
+            print(f"Sending message to Foxglove: {message[0]}")
+            if message[0] == 'log':
+                level = message[1]["level"]
+                log_message_text = message[1]["message"] 
+                timestamp = message[1]["timestamp"] 
+                dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%f+00:00Z")
+                epoch_seconds = dt.timestamp()
 
+                await server.send_message(
+                    log_chan,
+                    time.time_ns(),
+                    json.dumps({
+                        "timestamp": {
+                            "sec": epoch_seconds,
+                            "nsec": 0
+                        },
+                        "level": level,
+                        "message": log_message_text,
+                        "name": "Flask",
+                        "file": "test",
+                        "line": 0
+                    }).encode("utf8"),
+                )  
+            elif message[0] == 'status':
+                pass
+            elif message[0] == 'trough_status':
+                pass
+            elif message[0] == 'trough_feature':
+                pass
+            else:
+                print("Cannot send to Foxglove, unknown message time (check Flask endpoint)")
 
+# Called externally to start Foxglove server
+async def run(message_queue, loop):
+    print("Starting Foxglove thread")
+    await main(message_queue, loop)
+    
 if __name__ == "__main__":
-    run_cancellable(main())
+    run(None, None)
