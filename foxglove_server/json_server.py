@@ -125,41 +125,6 @@ async def main(message_queue, loop):
                 "schemaEncoding": "jsonschema",
             }
         )
-        await server.add_service(
-            {
-                "name": "example_set_bool",
-                "request": {
-                    "encoding": "json",
-                    "schemaName": "requestSchema",
-                    "schemaEncoding": "jsonschema",
-                    "schema": json.dumps(
-                        {
-                            "type": "object",
-                            "properties": {
-                                "data": {"type": "boolean"},
-                            },
-                        }
-                    ),
-                },
-                "response": {
-                    "encoding": "json",
-                    "schemaName": "responseSchema",
-                    "schemaEncoding": "jsonschema",
-                    "schema": json.dumps(
-                        {
-                            "type": "object",
-                            "properties": {
-                                "success": {"type": "boolean"},
-                                "message": {"type": "string"},
-                            },
-                        }
-                    ),
-                },
-                "requestSchema": None,
-                "responseSchema": None,
-                "type": "example_set_bool",
-            }
-        )
 
         while True:
             message = await message_queue.get()
