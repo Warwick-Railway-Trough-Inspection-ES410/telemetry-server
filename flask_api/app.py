@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask
 from flask_socketio import SocketIO, emit
 import json
 from jsonschema import validate, ValidationError
@@ -40,8 +40,8 @@ def validate_request(data, schema):
         return {"error": "Something went wrong", "details": str(e)}, 500
 
 def run():
-    print("Starting Flask Thread")
-    socketio.run(app, port=3000, use_reloader=False, debug=False)
+    print("Starting Flask thread")
+    socketio.run(app, host='0.0.0.0', port=3000, debug=False, use_reloader=False)
 
 if __name__ == '__main__':
     run()

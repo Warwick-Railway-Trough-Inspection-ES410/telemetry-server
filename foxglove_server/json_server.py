@@ -178,6 +178,7 @@ async def main():
             )
 
 def run():
+    print("Starting Foxglove thread")
     run_cancellable(main())
     
 if __name__ == "__main__":

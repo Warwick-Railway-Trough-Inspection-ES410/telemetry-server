@@ -18,14 +18,13 @@ Missing Features (ToDo):
 
 """
 import threading
-import asyncio
 import flask_api.app as flask_server
 import foxglove_server.json_server as foxglove_server
 
 def main_runner():
-    flask_thread = threading.Thread(target=flask_server.run(), daemon=False)
+    flask_thread = threading.Thread(target=flask_server.run, daemon=True)
     flask_thread.start()
-
+    
     foxglove_server.run()
 
 
