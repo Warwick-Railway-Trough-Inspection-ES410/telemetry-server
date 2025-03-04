@@ -23,6 +23,11 @@ with open('foxglove_server/jsonschema/CompressedImage.json', 'r') as file:
 with open('foxglove_server/jsonschema/Log.json', 'r') as file:
     Log_schema = file.read()
 
+with open('foxglove_server/customschema/Status.json', 'r') as file:
+    Status_schema = file.read()
+with open('foxglove_server/customschema/BatteryState.json', 'r') as file:
+    BatteryState_schema = file.read()
+
 async def main(message_queue, loop):
 
     class Listener(FoxgloveServerListener):
@@ -125,6 +130,24 @@ async def main(message_queue, loop):
                 "schemaEncoding": "jsonschema",
             }
         )
+        status_chan = await server.add_channel(
+            {
+                "topic": "Vehicle Status",
+                "encoding": "json",
+                "schemaName": "Status",
+                "schema": Status_schema,
+                "schemaEncoding": "jsonschema",
+            }
+        )
+        battery_chan = await server.add_channel(
+            {
+                "topic": "Battery State",
+                "encoding": "json",
+                "schemaName": "sensor_msgs/BatteryState",
+                "schema": BatteryState_schema,
+                "schemaEncoding": "jsonschema",
+            }
+        )
 
         while True:
             message = await message_queue.get()
@@ -137,13 +160,23 @@ async def main(message_queue, loop):
                     payload,
                 )  
             elif message[0] == 'status':
-                payload = await handle_status(message) 
+                payload0, payload1, payload2 = await handle_status(message) 
 
                 await server.send_message(
                     location_chan,
                     time.time_ns(),
-                    payload,
-                )  
+                    payload0,
+                )
+                await server.send_message(
+                    status_chan,
+                    time.time_ns(),
+                    payload1,
+                )
+                await server.send_message(
+                    battery_chan,
+                    time.time_ns(),
+                    payload2,
+                )   
             elif message[0] == 'trough_status':
                 payload = await handle_trough_status(message) 
 
@@ -164,14 +197,19 @@ async def main(message_queue, loop):
                 print("Cannot send to Foxglove, unknown message time (check Flask endpoint)")
 
 async def handle_status(message):
+    status = message[1]["status"]
+    battery = message[1]["battery"]
+    distance_travelled = message[1]["distance_travelled"]
+    signal_quality = message[1]["signal_quality"]
     latitude = message[1]["gps"]["latitude"]
     longitude = message[1]["gps"]["longitude"]
     altitude = message[1]["gps"]["longitude"]
+    # Todo: Read IMU
     timestamp = message[1]["timestamp"] 
     dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%f+00:00Z")
     epoch_seconds = dt.timestamp()
 
-    payload = json.dumps({
+    payload0 = json.dumps({
         "timestamp": {
             "sec": epoch_seconds,
             "nsec": 0
@@ -183,7 +221,22 @@ async def handle_status(message):
         "position_covariance": [0.1, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0, 0.1],
         "position_covariance_type": 2
         }).encode("utf8")
-    return payload
+    payload1 = json.dumps({
+        "status": status,
+        "battery": battery,
+        "distance_travelled": distance_travelled,
+        "signal_quality": signal_quality,
+        "acc_X": 0,
+        "acc_Y": 0,
+        "acc_Z": 0,
+        "gyr_X": 0,
+        "gyr_Y": 0,
+        "gyr_Z": 0,
+        }).encode("utf8")
+    payload2 = json.dumps({
+            "percentage": (battery/100)
+        }).encode("utf8")
+    return payload0, payload1, payload2
 
 async def handle_log(message):
     level = message[1]["level"]
@@ -206,9 +259,11 @@ async def handle_log(message):
     return payload
 
 async def handle_trough_status(message):
+    # Todo: Finish trough status with multiple messages
     pass
 
 async def handle_trough_feature(message):
+    # Todo: Finish trough feature with multiple messages
     image_data = message[1]["data"]
     timestamp = message[1]["timestamp"] 
     dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%f+00:00Z")

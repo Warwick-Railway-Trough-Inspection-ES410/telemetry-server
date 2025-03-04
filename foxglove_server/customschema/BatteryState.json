@@ -1,0 +1,11 @@
+{
+    "title": "sensor_msgs.BatteryState",
+    "description": "Robot status struct",
+    "$comment": "A custom schema.",
+    "type": "object",
+    "properties": {
+        "percentage": {
+            "type": "number"
+        }
+    }
+}

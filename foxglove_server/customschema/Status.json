@@ -1,0 +1,38 @@
+{
+    "title": "Status",
+    "description": "Robot status struct",
+    "$comment": "A custom schema.",
+    "type": "object",
+    "properties": {
+        "status": {
+            "type": "integer"
+        },
+        "battery": {
+            "type": "integer"
+        },
+        "distance_travelled": {
+            "type": "number"
+        },
+        "signal_quality": {
+            "type": "number"
+        },
+        "acc_X": {
+            "type": "number"
+        },
+        "acc_Y": {
+            "type": "number"
+        },
+        "acc_Z": {
+            "type": "number"
+        },
+        "gyr_X": {
+            "type": "number"
+        },
+        "gyr_Y": {
+            "type": "number"
+        },
+        "gyr_Z": {
+            "type": "number"
+        }
+    }
+}
