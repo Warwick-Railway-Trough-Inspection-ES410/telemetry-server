@@ -145,7 +145,7 @@ async def main(message_queue, loop):
                     payload,
                 )  
             elif message[0] == 'trough_status':
-                payload = await handle_log(message) 
+                payload = await handle_trough_status(message) 
 
                 # await server.send_message(
                 #     log_chan,
@@ -153,13 +153,13 @@ async def main(message_queue, loop):
                 #     payload,
                 # )  
             elif message[0] == 'trough_feature':
-                payload = await handle_log(message) 
+                payload = await handle_trough_feature(message) 
 
-                # await server.send_message(
-                #     log_chan,
-                #     time.time_ns(),
-                #     payload,
-                # )  
+                await server.send_message(
+                    cam1_chan,
+                    time.time_ns(),
+                    payload,
+                )  
             else:
                 print("Cannot send to Foxglove, unknown message time (check Flask endpoint)")
 
@@ -209,7 +209,21 @@ async def handle_trough_status(message):
     pass
 
 async def handle_trough_feature(message):
-    pass
+    image_data = message[1]["data"]
+    timestamp = message[1]["timestamp"] 
+    dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%f+00:00Z")
+    epoch_seconds = int(dt.timestamp())
+
+    payload = json.dumps({
+        "timestamp": {
+            "sec": epoch_seconds,
+            "nsec": 0
+        },
+        "frame_id": "abc",
+        "data": image_data,
+        "format": "jpg"
+        }).encode("utf8")
+    return payload
 
 # Called externally to start Foxglove server
 async def run(message_queue, loop):
