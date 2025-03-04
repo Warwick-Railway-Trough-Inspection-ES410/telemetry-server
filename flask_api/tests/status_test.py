@@ -2,6 +2,7 @@ import socketio
 from datetime import datetime, timezone
 import json
 import time
+import random
 
 sio = socketio.Client()
 
@@ -31,7 +32,7 @@ while True:
             "status": 1,
             "battery": 85,
             "distance_travelled": 1203.5,
-            "signal_quality": 75.2,
+            "signal_quality": (50 + random.randint(-10, 30)),
             "gps": {
                 "latitude": lat,
                 "longitude": lon,
