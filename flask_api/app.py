@@ -15,6 +15,10 @@ with open("flask_api/schema/status_schema.json", 'r') as file:
     status_schema = json.load(file)
 with open("flask_api/schema/log_message_schema.json", 'r') as file:
     log_message_schema = json.load(file)
+with open("flask_api/schema/trough_status_schema.json", 'r') as file:
+    trough_status_schema = json.load(file)
+with open("flask_api/schema/trough_feature_schema.json", 'r') as file:
+    trough_feature_schema = json.load(file)
 
 # Define Endpoints
 @socketio.on("status")
@@ -24,6 +28,14 @@ def status_endpoint(data):
 @socketio.on("log")
 def log_endpoint(data):
     return validate_request(data, log_message_schema, "log")
+
+@socketio.on("trough_status")
+def trough_status_endpoint(data):
+    return validate_request(data, trough_status_schema, "trough_status")
+
+@socketio.on("trough_feature")
+def trough_feature_endpoint(data):
+    return validate_request(data, trough_feature_schema, "trough_feature")
 
 @socketio.on('connect')
 def test_connect(message):

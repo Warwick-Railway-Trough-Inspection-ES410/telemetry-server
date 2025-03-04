@@ -38,8 +38,8 @@
                     "minItems": 3,
                     "maxItems": 3
                 },
-                "orientation": {
-                    "type": "number",
+                "gyro": {
+                    "type": "array",
                     "items": {
                         "type": "number"
                     },

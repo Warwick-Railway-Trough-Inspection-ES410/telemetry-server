@@ -130,35 +130,86 @@ async def main(message_queue, loop):
             message = await message_queue.get()
             print(f"Sending message to Foxglove: {message[0]}")
             if message[0] == 'log':
-                level = message[1]["level"]
-                log_message_text = message[1]["message"] 
-                timestamp = message[1]["timestamp"] 
-                dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%f+00:00Z")
-                epoch_seconds = dt.timestamp()
-
+                payload = await handle_log(message) 
                 await server.send_message(
                     log_chan,
                     time.time_ns(),
-                    json.dumps({
-                        "timestamp": {
-                            "sec": epoch_seconds,
-                            "nsec": 0
-                        },
-                        "level": level,
-                        "message": log_message_text,
-                        "name": "Flask",
-                        "file": "test",
-                        "line": 0
-                    }).encode("utf8"),
+                    payload,
                 )  
             elif message[0] == 'status':
-                pass
+                payload = await handle_status(message) 
+
+                await server.send_message(
+                    location_chan,
+                    time.time_ns(),
+                    payload,
+                )  
             elif message[0] == 'trough_status':
-                pass
+                payload = await handle_log(message) 
+
+                # await server.send_message(
+                #     log_chan,
+                #     time.time_ns(),
+                #     payload,
+                # )  
             elif message[0] == 'trough_feature':
-                pass
+                payload = await handle_log(message) 
+
+                # await server.send_message(
+                #     log_chan,
+                #     time.time_ns(),
+                #     payload,
+                # )  
             else:
                 print("Cannot send to Foxglove, unknown message time (check Flask endpoint)")
+
+async def handle_status(message):
+    latitude = message[1]["gps"]["latitude"]
+    longitude = message[1]["gps"]["longitude"]
+    altitude = message[1]["gps"]["longitude"]
+    timestamp = message[1]["timestamp"] 
+    dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%f+00:00Z")
+    epoch_seconds = dt.timestamp()
+
+    payload = json.dumps({
+        "timestamp": {
+            "sec": epoch_seconds,
+            "nsec": 0
+        },
+        "frame_id": "abc",
+        "latitude": latitude,
+        "longitude": longitude,
+        "altitude": longitude,
+        "position_covariance": [0.1, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0, 0.1],
+        "position_covariance_type": 2
+        }).encode("utf8")
+    return payload
+
+async def handle_log(message):
+    level = message[1]["level"]
+    log_message_text = message[1]["message"] 
+    timestamp = message[1]["timestamp"] 
+    dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%f+00:00Z")
+    epoch_seconds = dt.timestamp()
+
+    payload = json.dumps({
+        "timestamp": {
+            "sec": epoch_seconds,
+            "nsec": 0
+        },
+        "level": level,
+        "message": log_message_text,
+        "name": "Flask",
+        "file": "test",
+        "line": 0
+        }).encode("utf8")
+    return payload
+
+async def handle_trough_status(message):
+    pass
+
+async def handle_trough_feature(message):
+    pass
 
 # Called externally to start Foxglove server
 async def run(message_queue, loop):

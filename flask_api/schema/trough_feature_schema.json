@@ -21,11 +21,17 @@
         "timestamp": {
             "type": "string",
             "format": "date-time"
+        },
+        "data": {
+            "type": "string",
+            "contentEncoding": "base64",
+            "description": "Compressed image data"
         }
     },
     "required": [
         "feature_type",
         "gps",
-        "timestamp"
+        "timestamp",
+        "data"
     ]
 }
